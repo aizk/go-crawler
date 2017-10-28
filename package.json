@@ -1,9 +1,0 @@
-{
-  "name": "Node-Crawler",
-  "version": "1.0.0",
-  "description": "a distributed node crawler",
-  "main": "index.js",
-  "repository": "https://github.com/liunian1004/Node-Crawler",
-  "author": "liunian1004",
-  "license": "MIT"
-}
