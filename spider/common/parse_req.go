@@ -1,16 +1,16 @@
 package common
 
 import (
-	"vuacrawler/spider/model"
-	"vuacrawler/spider/logger"
-	"strings"
+	"Vua-Crawler/spider/logger"
+	"Vua-Crawler/spider/model"
 	"strconv"
+	"strings"
 )
 
 // 解析请求
 func ParseReq(r []*model.Request, query map[string]interface{}) []*model.Request {
 	results := []*model.Request{}
-	for _,req := range r {
+	for _, req := range r {
 		// 获取 rule
 		res, ok := getRuleRequests(req, query)
 		if ok {
@@ -23,7 +23,7 @@ func ParseReq(r []*model.Request, query map[string]interface{}) []*model.Request
 }
 
 // 解析规则语法的 URL
-// Query string 
+// Query string
 func getRuleRequests(r *model.Request, query map[string]interface{}) ([]*model.Request, bool) {
 	reqs := []*model.Request{}
 
@@ -33,10 +33,6 @@ func getRuleRequests(r *model.Request, query map[string]interface{}) ([]*model.R
 	if !match {
 		return nil, false
 	}
-
-	// if ctx != nil {
-		
-	// }
 
 	reqs, match = ParseOffset(r, rule)
 
@@ -65,7 +61,7 @@ func getRuleAndMatch(url string) (rule string, match bool) {
 // 解析带规则的 URL 为多个具体的 URL
 // http://xxxxxxxx.com/abc/{begin-end,offset}/ example:{1-400,10}
 // 转换后 http://xxxxxxxx.com/abc/11/
-func ParseOffset(r *model.Request, rule string)	([]*model.Request, bool) {
+func ParseOffset(r *model.Request, rule string) ([]*model.Request, bool) {
 	reqs := []*model.Request{}
 
 	ruleSplit := strings.Split(rule, ",")
@@ -74,7 +70,7 @@ func ParseOffset(r *model.Request, rule string)	([]*model.Request, bool) {
 	}
 
 	beginEndSplit := strings.Split(ruleSplit[0], "-")
-	
+
 	var begin, end, offset int
 	var err error
 
@@ -92,14 +88,14 @@ func ParseOffset(r *model.Request, rule string)	([]*model.Request, bool) {
 
 	logger.Log("begin: ", begin, "end: ", end, "offset: ", offset)
 	for i := begin; i < end; i += offset {
-		url := strings.Replace(r.Url, "{" + rule + "}", strconv.Itoa(i), 1)
+		url := strings.Replace(r.Url, "{"+rule+"}", strconv.Itoa(i), 1)
 		req := &model.Request{
-			Url: url,
-			Method: r.Method,
+			Url:         url,
+			Method:      r.Method,
 			ContentType: r.ContentType,
-			Data: r.Data,
-			Header: r.Header,
-			Cookies: r.Cookies,
+			Data:        r.Data,
+			Header:      r.Header,
+			Cookies:     r.Cookies,
 			ProcessName: r.ProcessName,
 		}
 		reqs = append(reqs, req)
