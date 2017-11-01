@@ -7,6 +7,7 @@
 ## process
 
 负责处理下载后的网页内容
+1. 处理 json 返回值，解析节点中的数组
 
 ## pipeline
 
@@ -23,6 +24,10 @@
 ## http
 
 REST 接口
+
+## spider
+
+整合爬虫各模块
 
 ## core
 
