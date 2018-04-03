@@ -16,7 +16,6 @@ type EasyDownload struct {
 
 func (EasyDownload) Download(spider *spider.Spider, request *request.Request) *page.Page {
 	return &page.Page{
-		Spider: spider,
 		Items: []pipeline.Item{
 			map[string]interface{}{ "1": 1},
 			},

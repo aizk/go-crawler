@@ -16,6 +16,18 @@ type Collector struct {
 	Total int // 收集的数据总数
 }
 
+func NewCollector() *Collector {
+	c := &Collector{}
+	c.outputType = "console"
+	c.ItemChan = make(chan Item)
+	c.FileChan = make(chan File)
+	c.ItemCache = make([]Item, 5)
+	c.ItemCount = 0
+	c.ItemOutputTimes = 0
+	c.Total = 0
+	return c
+}
+
 func (c *Collector) Start() {
 	go func() {
 		// 从队列迭代获取数据，直至队列 close

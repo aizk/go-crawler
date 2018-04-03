@@ -7,6 +7,7 @@ import (
 	page2 "github.com/liunian1004/go-crawler/page"
 	"time"
 	"github.com/liunian1004/go-crawler/request"
+	"fmt"
 )
 
 // 采集器
@@ -34,10 +35,11 @@ func New(id int) CrawlerInterface {
 }
 
 func (c *Crawler) Init(spider *spider.Spider) CrawlerInterface {
-	// 初始化蜘蛛 scheduler
+	// 初始化蜘蛛队列
+	c.Spider = spider.SpiderMatrixInit()
 
 	// 初始化 Pipeline
-
+	c.Pipeline = pipeline.NewPipeline()
 	return c
 }
 
@@ -52,6 +54,7 @@ func (c *Crawler) Run() {
 		close(t)
 	}()
 
+	// 启动
 	c.Spider.Start()
 
 	// 阻塞等待退出
@@ -66,9 +69,9 @@ func (c *Crawler) run() {
 		req := c.GetOneRequest()
 		if req == nil {
 			// 是否可以停止任务
-			//if self.Spider.CanStop() {
-			//	break
-			//}
+			if c.Spider.CanStop() {
+				break
+			}
 			time.Sleep(20 * time.Millisecond)
 			continue
 		}
@@ -98,7 +101,8 @@ func (c *Crawler) Process(req *request.Request) {
 	page := c.Download.Download(spider1, req)
 
 	// 使用规则，解析下载回来的 page 对象 (每个 Request 都有对应的规则)
-	page.Parse(req.GetRuleName())
+	// 每个请求都有自己的 Parse func -> 根据请求的 Rule name 指定
+	spider1.Parse(req.GetRuleName(), page)
 
 	err := c.Pipeline.CollectItems(page.GetItems())
 	if err != nil {
@@ -117,8 +121,10 @@ func (c *Crawler) Process(req *request.Request) {
 	page2.ReleasePage(page)
 }
 
-func (*Crawler) Stop() {
-	panic("implement me")
+// 主动停止
+func (c *Crawler) Stop() {
+	c.Spider.Stop()
+	c.Pipeline.Stop()
 }
 
 func (c *Crawler) GetID() int {
@@ -134,7 +140,7 @@ func (c *Crawler) CanStop() bool {
 }
 
 func (c *Crawler) GetOneRequest() *request.Request {
-	return nil
+	return c.Spider.PullRequest()
 }
 
 func (c *Crawler) UseOneThread() {

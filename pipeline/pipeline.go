@@ -6,3 +6,7 @@ type Pipeliner interface{
 	CollectFiles(files []File) error
 	CollectItems(items []Item) error
 }
+
+func NewPipeline() Pipeliner {
+	return NewCollector()
+}

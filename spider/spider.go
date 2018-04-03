@@ -37,7 +37,7 @@ func (s *Spider) GetRule(ruleName string) (rule *Rule, r bool) {
 }
 
 func (s *Spider) Start() {
-	s.RuleTree.Root(page.GetPage(s, nil))
+	s.RuleTree.Root(&Context{Spider: s})
 	s.lock.Lock()
 	s.Status = scheduler.RUN
 	s.lock.Unlock()
@@ -73,4 +73,28 @@ func (s *Spider) SaveSuccess() {
 // 保存失败记录
 func (s *Spider) SaveFailure() {
 
+}
+
+func (s *Spider) CanStop() bool {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	return s.Status == scheduler.STOP
+}
+
+func (s *Spider) Parse(ruleName string, p *page.Page) *page.Page {
+	// 根据 rule 将数据解析到 Items 和 Files
+	// get Rule
+	rule, _ := s.GetRule(ruleName)
+
+	if rule.ParseFunc == nil {
+		panic("解析函数不存在")
+	}
+
+	ctx := GetContext(s)
+	// 解析数据
+	rule.ParseFunc(ctx, p)
+
+	PutContext(ctx)
+
+	return p
 }
